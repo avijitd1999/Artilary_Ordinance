@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ManufacturerModule } from './manufacturer/manufacturer.module';
 import { WeaponModule } from './weapon/weapon.module'; // Import the WeaponModule
 import { OrderedWeaponModule } from './OrderWeapon/ordered-weapon.module';
+import { AuthModule } from './Manufacturer/auth/auth.module';
 @Module({
   imports: [
     ManufacturerModule,

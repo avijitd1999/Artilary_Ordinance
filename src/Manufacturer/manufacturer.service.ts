@@ -1,59 +1,60 @@
-// manufacturer.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ManufacturerDTO } from './manufacturer.dto';
 import { ManufacturerEntity } from './manufacturer.entity';
+import { uManufacturerDTO } from './umanufacturer.dto';
 
 @Injectable()
 export class ManufacturerService {
-  findByEmail(email: string) {
-      throw new Error('Method not implemented.');
-  }
   constructor(
     @InjectRepository(ManufacturerEntity)
-    private manufacturerRepo: Repository<ManufacturerEntity>,
+    private manufacturerRepository: Repository<ManufacturerEntity>,
   ) {}
 
   async findAll(): Promise<ManufacturerEntity[]> {
-    return await this.manufacturerRepo.find();
+    return await this.manufacturerRepository.find();
   }
 
   async createUser(manufacturerDTO: ManufacturerDTO): Promise<ManufacturerEntity> {
-    const manufacturer = this.manufacturerRepo.create(manufacturerDTO);
-    return await this.manufacturerRepo.save(manufacturer);
+    const manufacturer = this.manufacturerRepository.create(manufacturerDTO);
+    return await this.manufacturerRepository.save(manufacturer);
   }
 
   async modifyCountry(userId: number, newCountry: string): Promise<ManufacturerEntity> {
-    const manufacturer = await this.manufacturerRepo.findOne({ where: { id: userId } });
+    const manufacturer = await this.manufacturerRepository.findOne({ where: { id: userId } });
     if (!manufacturer) {
       throw new NotFoundException('Manufacturer not found');
     }
     manufacturer.country = newCountry;
-    return await this.manufacturerRepo.save(manufacturer);
+    return await this.manufacturerRepository.save(manufacturer);
   }
 
   async getUsersByJoiningDate(joiningDate: Date): Promise<ManufacturerEntity[]> {
-    return await this.manufacturerRepo.find({ where: { joiningDate } });
+    return await this.manufacturerRepository.find({ where: { joiningDate } });
   }
 
   async getUsersWithDefaultCountry(): Promise<ManufacturerEntity[]> {
-    return await this.manufacturerRepo.find({ where: { country: 'Unknown' } });
+    return await this.manufacturerRepository.find({ where: { country: 'Unknown' } });
   }
 
-  async updateUser(userId: number, manufacturerDTO: ManufacturerDTO): Promise<ManufacturerEntity> {
-    let manufacturer = await this.manufacturerRepo.findOne({ where: { id: userId } });
+  async updateUser(userId: number, umanufacturerDTO: uManufacturerDTO): Promise<ManufacturerEntity> {
+    let manufacturer = await this.manufacturerRepository.findOne({ where: { id: userId } });
     if (!manufacturer) {
       throw new NotFoundException('Manufacturer not found');
     }
-    manufacturer = { ...manufacturer, ...manufacturerDTO };
-    return await this.manufacturerRepo.save(manufacturer);
+    manufacturer = { ...manufacturer, ...umanufacturerDTO };
+    return await this.manufacturerRepository.save(manufacturer);
   }
 
   async deleteUser(userId: number): Promise<void> {
-    const result = await this.manufacturerRepo.delete(userId);
+    const result = await this.manufacturerRepository.delete(userId);
     if (result.affected === 0) {
       throw new NotFoundException('Manufacturer not found');
     }
+  }
+
+  async findByEmail(email: string): Promise<ManufacturerEntity | undefined> {
+    return await this.manufacturerRepository.findOne({ where: { email:email } });
   }
 }

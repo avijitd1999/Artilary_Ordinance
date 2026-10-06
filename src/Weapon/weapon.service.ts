@@ -36,4 +36,26 @@ export class WeaponService {
       throw new NotFoundException('Weapon not found');
     }
   }
+
+  
+  async uploadPdf(weaponId: number, pdfFile: Express.Multer.File): Promise<{ pdfFilePath: string }> {
+    const weapon = await this.weaponRepo.findOne({where: {id:weaponId}});
+    if (!weapon) {
+        throw new NotFoundException(`Weapon with ID ${weaponId} not found`);
+    }
+
+    // Save the file path to the weapon entity
+    weapon.pdfFilePath = pdfFile.path;
+    await this.weaponRepo.save(weapon);
+
+    // Return the file path
+    return { pdfFilePath: pdfFile.path };
+}
+async getPdfFilePath(weaponId: number): Promise<string> {
+    const weapon = await this.weaponRepo.findOne({where: {id:weaponId}});
+    if (!weapon || !weapon.pdfFilePath) {
+        throw new NotFoundException(`PDF file not found for weapon with ID ${weaponId}`);
+    }
+    return weapon.pdfFilePath;
+}
 }

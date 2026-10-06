@@ -12,6 +12,9 @@ export class WeaponEntity {
   @Column({ default: 0 })
   available: number;
 
+  @Column({ nullable: true })
+  pdfFilePath: string;
+
   @ManyToOne(() => ManufacturerEntity, manufacturer => manufacturer.weapons)
   manufacturer: ManufacturerEntity; // Check if this line is correct
 }

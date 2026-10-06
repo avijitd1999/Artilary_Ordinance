@@ -1,6 +1,7 @@
-import { Controller, Post, Body, Put, Param, Get, Delete, UseInterceptors, UploadedFile, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Body, Put, Param, Get, Delete,Res, HttpException, HttpStatus, UseInterceptors, UploadedFile, UsePipes, ValidationPipe } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { WeaponService } from './weapon.service';
 import { WeaponDTO } from './weapon.dto';
 import { WeaponEntity } from './weapon.entity';
@@ -30,25 +31,34 @@ export class WeaponController {
     return await this.weaponService.deleteWeapon(weaponId);
   }
 
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file', {
-    fileFilter: (req, file, cb) => {
-      if (file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-        cb(null, true);
-      } else {
-        cb(new Error('Invalid file type'), false);
-      }
-    },
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, cb) =>{
-        cb (null, Date.now()+file.originalname)
-      }
-    }),
+  @Put(':id/pdf')
+  @UseInterceptors(FileInterceptor('pdf', {
+      storage: diskStorage({
+          destination: './uploads',
+          filename: (req, file, cb) => {
+              const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
+              return cb(null, `${randomName}${extname(file.originalname)}`);
+          }
+      })
   }))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    console.log(file);
-    // Process the uploaded file here
-    return file;
+  async uploadPdf(
+      @Param('id') weaponId: number,
+      @UploadedFile() pdfFile: Express.Multer.File): Promise<{ pdfFilePath: string }> { // Change the return type to string
+      try {
+          const result = await this.weaponService.uploadPdf(weaponId, pdfFile);
+          return result; // Return the file path directly
+      } catch (error) {
+          throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
+  }
+  
+  @Get(':id/pdf')
+  async downloadPdf(@Param('id') weaponId: number, @Res() res: any): Promise<void> {
+      try {
+          const pdfPath = await this.weaponService.getPdfFilePath(weaponId);
+          res.download(pdfPath); // Stream the PDF file back to the client
+      } catch (error) {
+          throw new HttpException('PDF file not found', HttpStatus.NOT_FOUND);
+      }
   }
 }

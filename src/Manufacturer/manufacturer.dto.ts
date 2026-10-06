@@ -18,11 +18,13 @@ export class ManufacturerDTO {
   @IsUrl()
   socialMediaLink: string;
 
-  @IsPhoneNumber(null, { message: 'Invalid phone number' })
+  @IsNotEmpty({ message: 'Invalid phone number' })
   phoneNumber: string;
 
-  @IsDate()
+  @IsNotEmpty({ message: 'enter date number' })
   joiningDate: Date;
+  @IsString()
+  country: string;
 
 }
 

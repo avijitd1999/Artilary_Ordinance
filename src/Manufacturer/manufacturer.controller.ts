@@ -3,6 +3,7 @@ import { Controller, Get, Post,Put, Body, Patch, Param, Delete, Query, Res,Reque
 import { ManufacturerService } from './manufacturer.service';
 import { ManufacturerDTO } from './manufacturer.dto';
 import { ManufacturerEntity } from './manufacturer.entity';
+import { uManufacturerDTO } from './umanufacturer.dto';
 
 @Controller('manufacturer')
 export class ManufacturerController {
@@ -24,8 +25,8 @@ export class ManufacturerController {
   }
 
   @Put(':id')
-  async updateUser(@Param('id') userId: number, @Body() manufacturerDTO: ManufacturerDTO): Promise<ManufacturerEntity> {
-    return await this.manufacturerService.updateUser(userId, manufacturerDTO);
+  async updateUser(@Param('id') userId: number, @Body() umanufacturerDTO: uManufacturerDTO): Promise<ManufacturerEntity> {
+    return await this.manufacturerService.updateUser(userId, umanufacturerDTO);
   }
 
   @Get('joining-date')
